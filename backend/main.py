@@ -1,9 +1,11 @@
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
 import stripe
 from dotenv import load_dotenv
 import os
 from authlib.integrations.starlette_client import OAuth
+import urllib.parse
 
 load_dotenv()
 
@@ -87,12 +89,14 @@ async def auth_callback(request: Request):
     if not email or not email.endswith("@scu.edu"):
         raise HTTPException(status_code=403, detail="Only SCU emails are allowed")
 
-    return {"email": email, "name": user_info.get("name")}
+    # redirect to frontend with user info in query params
+    params = urllib.parse.urlencode({"email": email, "name": user_info.get("name")})
+    return RedirectResponse(f"{FRONTEND_URL}/login-success?{params}")
 
 # ---------------------------- 
 # Uvicorn entrypoint for Render
-# ----------------------------
+# ---------------------------- 
 if __name__ == "__main__":
     import uvicorn
-    port = int(os.getenv("PORT", 8000))  # Render will provide $PORT automatically
+    port = int(os.getenv("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
