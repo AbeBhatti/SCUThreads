@@ -2,7 +2,6 @@ import React from "react";
 
 export default function LoginPage({ onLoginSuccess }) {
   const handleLogin = () => {
-    // Simply redirect the browser to the backend Google OAuth endpoint
     window.location.href = `${process.env.REACT_APP_BACKEND_URL}/auth/google`;
   };
 

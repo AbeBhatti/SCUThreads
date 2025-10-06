@@ -7,6 +7,12 @@ import os
 from authlib.integrations.starlette_client import OAuth
 import urllib.parse
 
+print("FRONTEND_URL =", os.getenv("FRONTEND_URL"))
+print("BACKEND_URL =", os.getenv("BACKEND_URL"))
+print("GOOGLE_CLIENT_ID =", os.getenv("GOOGLE_CLIENT_ID") is not None)
+print("GOOGLE_CLIENT_SECRET =", os.getenv("GOOGLE_CLIENT_SECRET") is not None)
+print("STRIPE_SECRET_KEY =", os.getenv("STRIPE_SECRET_KEY") is not None)
+
 load_dotenv()
 
 app = FastAPI()
