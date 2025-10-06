@@ -24,6 +24,13 @@ app.add_middleware(
 )
 
 # ----------------------------
+# Root route
+# ----------------------------
+@app.get("/")
+def root():
+    return {"message": "SCUThreads backend running!"}
+
+# ----------------------------
 # Stripe
 # ----------------------------
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
