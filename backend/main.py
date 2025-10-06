@@ -89,7 +89,7 @@ async def auth_callback(request: Request):
 
     return {"email": email, "name": user_info.get("name")}
 
-# ----------------------------
+# ---------------------------- 
 # Uvicorn entrypoint for Render
 # ----------------------------
 if __name__ == "__main__":
