@@ -1,11 +1,17 @@
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
+from starlette.middleware.sessions import SessionMiddleware
 import stripe
 from dotenv import load_dotenv
 import os
 from authlib.integrations.starlette_client import OAuth
 import urllib.parse
+
+# ----------------------------
+# Load environment variables first
+# ----------------------------
+load_dotenv()
 
 print("FRONTEND_URL =", os.getenv("FRONTEND_URL"))
 print("BACKEND_URL =", os.getenv("BACKEND_URL"))
@@ -13,16 +19,23 @@ print("GOOGLE_CLIENT_ID =", os.getenv("GOOGLE_CLIENT_ID") is not None)
 print("GOOGLE_CLIENT_SECRET =", os.getenv("GOOGLE_CLIENT_SECRET") is not None)
 print("STRIPE_SECRET_KEY =", os.getenv("STRIPE_SECRET_KEY") is not None)
 
-load_dotenv()
-
+# ----------------------------
+# FastAPI app
+# ----------------------------
 app = FastAPI()
 
 # ----------------------------
-# CORS
+# Middleware
 # ----------------------------
+# Session middleware for OAuth
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=os.getenv("SESSION_SECRET_KEY", "supersecret123")
+)
+
+# CORS
 FRONTEND_URL = os.getenv("FRONTEND_URL", "https://scuthreads.vercel.app")
 origins = [FRONTEND_URL]
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -32,15 +45,24 @@ app.add_middleware(
 )
 
 # ----------------------------
-# Root route
+# Routes
 # ----------------------------
 @app.get("/")
 def root():
     return {"message": "SCUThreads backend running!"}
 
-# ----------------------------
+@app.get("/env-check")
+def env_check():
+    return {
+        "frontend": bool(os.getenv("FRONTEND_URL")),
+        "backend": bool(os.getenv("BACKEND_URL")),
+        "google_id": bool(os.getenv("GOOGLE_CLIENT_ID")),
+        "google_secret": bool(os.getenv("GOOGLE_CLIENT_SECRET")),
+        "stripe": bool(os.getenv("STRIPE_SECRET_KEY")),
+        "session_key": bool(os.getenv("SESSION_SECRET_KEY"))
+    }
+
 # Stripe
-# ----------------------------
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 
 @app.post("/create-checkout-session")
@@ -68,9 +90,7 @@ async def create_checkout_session(request: Request):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-# ----------------------------
-# Google OAuth for SCU email
-# ----------------------------
+# Google OAuth
 oauth = OAuth()
 oauth.register(
     name='google',
@@ -95,24 +115,14 @@ async def auth_callback(request: Request):
     if not email or not email.endswith("@scu.edu"):
         raise HTTPException(status_code=403, detail="Only SCU emails are allowed")
 
-    # redirect to frontend with user info in query params
+    # redirect to frontend with user info
     params = urllib.parse.urlencode({"email": email, "name": user_info.get("name")})
     return RedirectResponse(f"{FRONTEND_URL}/login-success?{params}")
 
-# ---------------------------- 
+# ----------------------------
 # Uvicorn entrypoint for Render
-# ---------------------------- 
+# ----------------------------
 if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
-
-@app.get("/env-check")
-def env_check():
-    return {
-        "frontend": bool(os.getenv("FRONTEND_URL")),
-        "backend": bool(os.getenv("BACKEND_URL")),
-        "google_id": bool(os.getenv("GOOGLE_CLIENT_ID")),
-        "google_secret": bool(os.getenv("GOOGLE_CLIENT_SECRET")),
-        "stripe": bool(os.getenv("STRIPE_SECRET_KEY"))
-    }
