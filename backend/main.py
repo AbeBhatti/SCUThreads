@@ -58,7 +58,7 @@ async def create_checkout_session(request: Request):
 
         return {"url": session.url}
     except Exception as e:
-        return {"error": str(e)}
+        raise HTTPException(status_code=400, detail=str(e))
 
 # ----------------------------
 # Google OAuth for SCU email
@@ -88,3 +88,11 @@ async def auth_callback(request: Request):
         raise HTTPException(status_code=403, detail="Only SCU emails are allowed")
 
     return {"email": email, "name": user_info.get("name")}
+
+# ----------------------------
+# Uvicorn entrypoint for Render
+# ----------------------------
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.getenv("PORT", 8000))  # Render will provide $PORT automatically
+    uvicorn.run(app, host="0.0.0.0", port=port)
