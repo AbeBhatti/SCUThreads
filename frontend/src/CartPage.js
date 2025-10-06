@@ -60,6 +60,6 @@ export default function CartPage({ cart, setCart }) {
       <button className="button" onClick={handleCheckout} disabled={cart.length === 0}>
         Checkout
       </button>
-    </div>
+    </div> 
   );
 }
