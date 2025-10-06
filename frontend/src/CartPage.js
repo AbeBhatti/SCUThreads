@@ -21,7 +21,7 @@ export default function CartPage({ cart, setCart }) {
       if (data.url) {
         window.location.href = data.url; // redirect straight to Stripe Checkout
       } else {
-        console.error("No checkout URL returned", data);
+        console.error("No checkout URL returned", data); 
         alert("Checkout failed.");
       }
     } catch (err) {
