@@ -7,7 +7,8 @@ import ShirtDetailPage from "./ShirtDetailPage";
 import CartPage from "./CartPage";
 import CheckoutPage from "./CheckoutPage";
 import LoginPage from "./LoginPage";
-import LoginSuccessPage from "./LoginSucessPage";
+import LoginSuccessPage from "./LoginSuccessPage";
+
 
 export default function App() {
   const [page, setPage] = useState("login"); // start on login page
