@@ -7,7 +7,7 @@ export default function ShirtDetailPage({ selectedShirt, setPage, cart, setCart 
   const addToCart = () => {
     setCart([...cart, { ...selectedShirt, size, quantity }]);
     setPage("cart");
-  };
+  }; 
 
   return (
     <div>
