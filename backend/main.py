@@ -120,15 +120,15 @@ async def login(request: Request):
 @app.get("/auth/google/callback")
 async def auth_callback(request: Request):
     token = await oauth.google.authorize_access_token(request)
-    user_info = await oauth.google.parse_id_token(request, token)
+    user_info = await oauth.google.userinfo(token=token)
 
     email = user_info.get("email")
     if not email or not email.endswith("@scu.edu"):
         raise HTTPException(status_code=403, detail="Only SCU emails are allowed")
 
-    # redirect to frontend with user info
     params = urllib.parse.urlencode({"email": email, "name": user_info.get("name")})
     return RedirectResponse(f"{FRONTEND_URL}/login-success?{params}")
+
 
 # ----------------------------
 # Uvicorn entrypoint for local testing / Render
